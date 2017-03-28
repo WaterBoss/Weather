@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	生活建议布局
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="15dp"
+		android:layout_marginTop="15dp"
+		android:text="生活建议"
+		android:textColor="@color/colorWeather"
+		android:textSize="20dp"/>
+
+	<TextView
+		android:id="@+id/comfort_tv"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_margin="15dp"
+		android:textColor="@color/colorWeather"/>
+
+	<TextView
+		android:id="@+id/car_wash_tv"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_margin="15dp"
+		android:textColor="@color/colorWeather"/>
+
+	<TextView
+		android:id="@+id/sport_tv"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_margin="15dp"
+		android:textColor="@color/colorWeather"/>
+</LinearLayout>
