@@ -6,14 +6,15 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:layout_margin="15dp"
-              android:background="#8000">
+              android:background="#8000"
+              android:orientation="vertical">
 
 	<TextView
 		android:id="@+id/title_tv"
-		android:layout_width="wrap_content"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:gravity="center_vertical|left"
 		android:layout_marginLeft="15dp"
-		android:layout_marginTop="15dp"
 		android:text="预告"
 		android:textColor="#fff"
 		android:textSize="20sp"/>

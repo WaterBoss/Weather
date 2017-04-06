@@ -4,8 +4,14 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@color/colorPrimary"
 	tools:context="com.example.qcy.weather.WeatherActivity">
+
+	<ImageView
+		android:id="@+id/background_imagev"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:scaleType="centerCrop"
+		android:visibility="visible"/>
 
 	<ScrollView
 		android:id="@+id/weather_scroll"
@@ -13,12 +19,14 @@
 		android:layout_height="match_parent"
 		android:overScrollMode="always"
 		android:scrollbars="none"
-		android:visibility="gone">
+		android:visibility="visible">
 
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical">
+
+			<include layout="@layout/title"/>
 
 			<include layout="@layout/now"/>
 
@@ -27,15 +35,15 @@
 			<include layout="@layout/api"/>
 
 
-			<include layout="@layout/title"/>
 
 			<include layout="@layout/suggest"/>
 		</LinearLayout>
 	</ScrollView>
 
-	<fragment
+	<!--<fragment
 		android:id="@+id/choose_area_fragment"
 		android:name="com.example.qcy.fragment.ChooseAreaFragment"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"></fragment>
+		android:layout_height="match_parent"
+		android:visibilty ="none"></fragment>-->
 </FrameLayout>
