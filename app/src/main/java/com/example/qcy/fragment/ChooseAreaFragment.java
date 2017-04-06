@@ -174,13 +174,15 @@ public class ChooseAreaFragment extends Fragment {
                         mSelectdCity = mCityList.get(position);
                         isCountries();
                     } else if (mCurrentLever == LEVER_COUNTRY) {
-                        //TODO 页面构成不一样，可能会有问题，待处理
                         String weatherId = mCountryList.get(position).getWeatherId();
-                        WeatherActivity.startActivity(getActivity(), weatherId);
-                        getActivity().finish();
+                        AllUtil.saveDateBySP("weatherId", weatherId);
+                        WeatherActivity activity = (WeatherActivity) getActivity();
+                        activity.mDrawerLayout.closeDrawers();
+                        activity.mSwipeRefreshLayout.setRefreshing(true);
+                        activity.reFreshingDate(weatherId);
                     }
                 }
-            });
+           });
         }
 
         @Override
@@ -206,6 +208,7 @@ public class ChooseAreaFragment extends Fragment {
                 @Override
                 public void run() {
                     AllUtil.showProgressDialog(getActivity());
+                    AllUtil.logUtil(TAG, AllUtil.DUBUG_LEVER, "Activityname===="+getActivity().getLocalClassName());
                 }
             });
         }

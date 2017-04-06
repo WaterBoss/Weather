@@ -241,15 +241,19 @@ public class UtilityNet {
      */
     //TODO weatherId还没有设置
     public static void requestWeather(String weatherId, final MCallBack mCallBack) {
-        String wearherStr = "http://guolin.tech/api/weather?cityid=CN101190401&key=d0c8c897ecdf4efdac93b9dc14caac81";
-//        String wearherStr = "http://guolin.tech/api/weather?cityId="+weatherId+
-//                "&key=d0c8c897ecdf4efdac93b9dc14caac81";
+//        String wearherStr = "http://guolin.tech/api/weather?cityid=CN101190401&key=d0c8c897ecdf4efdac93b9dc14caac81";
+        String wearherStr = "http://guolin.tech/api/weather?cityid="+weatherId+
+                "&key=d0c8c897ecdf4efdac93b9dc14caac81";
         AllUtil.logUtil(TAG, AllUtil.DUBUG_LEVER, wearherStr);
-        mCallBack.beginQuery();
+        if (mCallBack != null) {
+            mCallBack.beginQuery();
+        }
         AllUtil.sendOkHttpRequest(wearherStr, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                mCallBack.failure();
+                if (mCallBack != null) {
+                    mCallBack.failure();
+                }
             }
 
             @Override
@@ -265,7 +269,13 @@ public class UtilityNet {
                 "responseStr"+responseStr);
                 if (!TextUtils.isEmpty(responseStr) && "ok".equals(weather.status)){
                     AllUtil.saveDateBySP("weather", responseStr);
-                    mCallBack.response(weather);
+                    if (mCallBack != null) {
+                        mCallBack.response(weather);
+                    }
+                } else {
+                    if (mCallBack != null) {
+                        mCallBack.failure();
+                    }
                 }
             }
         });

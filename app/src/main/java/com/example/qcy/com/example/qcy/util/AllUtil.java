@@ -107,4 +107,9 @@ public class AllUtil {
         editor.putString(nameStr, dateStr);
         editor.apply();
     }
+
+    public static Object getSpDate(String weatherId) {
+        return PreferenceManager.getDefaultSharedPreferences(MyApplication.getInstance().getContext())
+                .getString(weatherId, null);
+    }
 }

@@ -5,12 +5,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,7 +32,6 @@ import com.example.qcy.net.UtilityNet.MCallBack;
 public class WeatherActivity extends BaseActivity {
 
     private static final String TAG = "WeatherActivity";
-    private ScrollView mWeatherLayout;
     private TextView mTitleCity;
     private TextView mTitleUpadateTime;
     private TextView mDegreeText;
@@ -40,6 +43,10 @@ public class WeatherActivity extends BaseActivity {
     private TextView mCarWashText;
     private TextView mSportText;
     private ImageView mBackgroundImage;
+    public SwipeRefreshLayout mSwipeRefreshLayout;
+    private String mWeatherId;
+    public DrawerLayout mDrawerLayout;
+    public ImageView mHomeBut;
 
     //打开WeatherActivity页面
     public static void startActivity(Activity activity, String parmaStr) {
@@ -54,8 +61,12 @@ public class WeatherActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
         MyApplication.getInstance().setActivity(this);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.home_drawer_layout);
+        mDrawerLayout.closeDrawers();
+        mHomeBut = (ImageView) findViewById(R.id.home_but);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         mBackgroundImage = (ImageView) findViewById(R.id.background_imagev);
-        mWeatherLayout = (ScrollView) findViewById(R.id.weather_scroll);
         mTitleCity = (TextView) findViewById(R.id.title_city);
         mTitleUpadateTime = (TextView) findViewById(R.id.update_time);
         mDegreeText = (TextView) findViewById(R.id.wendu_tv);
@@ -79,21 +90,31 @@ public class WeatherActivity extends BaseActivity {
         if (!TextUtils.isEmpty(weatheInfo)) {
             //有本地缓存数据,显示天气信息
             Weather weather = UtilityNet.handleWeatherResponse(weatheInfo);
+            if (weather != null) {
+                mWeatherId = weather.basic.weatherId;
+            }
             showWeatherInfo(weather);
             AllUtil.logUtil(TAG, AllUtil.DUBUG_LEVER, "加载缓存数据");
         } else {
             //本地缓存数据为空，向服务端获取数据，再显示数据
             AllUtil.logUtil(TAG, AllUtil.DUBUG_LEVER, "加载服务端数据");
-//            String weatherId = getIntent().getStringExtra("weather_id");
-            MCallBack mCallBack = new MCallBacK();
-            String weatherId = "CN101190401";
-            UtilityNet.requestWeather(weatherId, mCallBack);
+            mWeatherId = prefs.getString("weatherId", null);
+            reFreshingDate(mWeatherId);
         }
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+        mSwipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                reFreshingDate(mWeatherId);
+            }
+        });
+        Glide.with(this).fromResource().load(R.drawable.ic_home).fitCenter().into(mHomeBut);
+        mHomeBut.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDrawerLayout.openDrawer(GravityCompat.START, true);
+            }
+        });
     }
 
     /**
@@ -137,6 +158,10 @@ public class WeatherActivity extends BaseActivity {
         }
     }
 
+    public void reFreshingDate(String weatherId) {
+        UtilityNet.requestWeather(weatherId, new MCallBacK());
+    }
+
     private class MCallBacK implements MCallBack {
         @Override
         public void beginQuery() {
@@ -159,8 +184,9 @@ public class WeatherActivity extends BaseActivity {
             WeatherActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(WeatherActivity.this, "获取天气信息失败！", Toast.LENGTH_SHORT);
+                    Toast.makeText(WeatherActivity.this, "获取天气信息失败！", Toast.LENGTH_SHORT).show();
                     AllUtil.closeProgressDialog();
+                    mSwipeRefreshLayout.setRefreshing(false);
                 }
             });
         }
@@ -182,6 +208,8 @@ public class WeatherActivity extends BaseActivity {
                     Weather weather = (Weather) parma;
                     showWeatherInfo(weather);
                     AllUtil.closeProgressDialog();
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    Toast.makeText(WeatherActivity.this, "成功获取天气信息！", Toast.LENGTH_SHORT).show();
                 }
             });
         }
