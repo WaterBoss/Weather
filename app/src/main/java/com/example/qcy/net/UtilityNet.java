@@ -28,12 +28,12 @@ import okhttp3.Response;
  */
 
 public class UtilityNet {
-
+    private static String TAG = "UtilityNet";
     /**
      * 将返回的json数据解析成weather实体类
      */
 
-    protected Weather handleWeatherResponse(String response) {
+    public static Weather handleWeatherResponse(String response) {
         try {
             JSONObject jsonObject = new JSONObject(response);
             JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
@@ -56,7 +56,7 @@ public class UtilityNet {
             try {
                 JSONArray allProvince = new JSONArray(response);
                 for (int i = 0; i < allProvince.length(); i++) {
-                    JSONObject provinceObject = allProvince.getJSONObject(i);
+                    JSONObject provinceObject  = allProvince.getJSONObject(i);
                     Province province = new Province();
                     province.setProvinceCode(provinceObject.getInt("id"));
                     province.setProvinceName(provinceObject.getString("name"));
@@ -134,7 +134,7 @@ public class UtilityNet {
         if (mCityList.isEmpty()){
             String address = "http://guolin.tech/api/china/"+provinceCode;
             String mType = "city";
-            queryFromServer(address, mCallBack, mType, selectedProvinceId, 0, 0, provinceCode);
+            queryFromServer(address, mCallBack, mType, selectedProvinceId, 0);
         }
 
         return mCityList;
@@ -156,7 +156,7 @@ public class UtilityNet {
             String address = "http://guolin.tech/api/china/"
                     +provinceCode+"/"+cityCode;
             String mType = "country";
-            queryFromServer(address, mCallBack, mType, 0, selectedCityId, cityCode, provinceCode);
+            queryFromServer(address, mCallBack, mType, 0, selectedCityId);
         }
         return mCountryList;
     }
@@ -170,7 +170,7 @@ public class UtilityNet {
         if (mProvinceList.isEmpty()) {
             String address = "http://guolin.tech/api/china";
             String mType = "province";
-            queryFromServer(address, mCallBack, mType, 0, 0, 0 , 0);
+            queryFromServer(address, mCallBack, mType, 0, 0);
         }
         return mProvinceList;
     }
@@ -181,12 +181,9 @@ public class UtilityNet {
      * @param mCallBack
      * @param mType
      * @param selectedCityId
-     * @param cityCode
-     * @param provinceCode
      */
     private static void queryFromServer(String address, final MCallBack mCallBack, final String mType,
-                                        final int selectedProvinceId, final int selectedCityId,
-                                        final int cityCode, final int provinceCode) {
+                                        final int selectedProvinceId, final int selectedCityId) {
         if (mCallBack != null){
             mCallBack.beginQuery();
         }
@@ -238,6 +235,78 @@ public class UtilityNet {
     }
 
     /**
+     * 以weatheId作为参数向服务器请求天气数据
+     * @param weatherId
+     * @param mCallBack
+     */
+    //TODO weatherId还没有设置
+    public static void requestWeather(String weatherId, final MCallBack mCallBack) {
+//        String wearherStr = "http://guolin.tech/api/weather?cityid=CN101190401&key=d0c8c897ecdf4efdac93b9dc14caac81";
+        String wearherStr = "http://guolin.tech/api/weather?cityid="+weatherId+
+                "&key=d0c8c897ecdf4efdac93b9dc14caac81";
+        AllUtil.logUtil(TAG, AllUtil.DUBUG_LEVER, wearherStr);
+        if (mCallBack != null) {
+            mCallBack.beginQuery();
+        }
+        AllUtil.sendOkHttpRequest(wearherStr, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                if (mCallBack != null) {
+                    mCallBack.failure();
+                }
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    Thread.sleep(1000l);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                String responseStr = response.body().string();
+                Weather weather = handleWeatherResponse(responseStr);
+                AllUtil.logUtil(TAG, AllUtil.DUBUG_LEVER, "weather.status=="+weather.status+
+                "responseStr"+responseStr);
+                if (!TextUtils.isEmpty(responseStr) && "ok".equals(weather.status)){
+                    AllUtil.saveDateBySP("weather", responseStr);
+                    if (mCallBack != null) {
+                        mCallBack.response(weather);
+                    }
+                } else {
+                    if (mCallBack != null) {
+                        mCallBack.failure();
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * 请求网络图片
+     * @param loadPicCallBack
+     * @param address
+     */
+    public static void loadBingPic(final MCallBack loadPicCallBack, String address) {
+        AllUtil.sendOkHttpRequest(address, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                if (loadPicCallBack != null) {
+                    loadPicCallBack.failure();
+                }
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String picAddress = response.body().string();
+                AllUtil.saveDateBySP("bing_pic", picAddress);
+                if (loadPicCallBack != null) {
+                    loadPicCallBack.response(picAddress);
+                }
+            }
+        });
+    }
+
+    /**
      * 请求之后，对界面进行刷新操作的回调函数
      */
     public interface MCallBack {
@@ -254,5 +323,7 @@ public class UtilityNet {
         void endQuery();
 
         void setMCurrentLever(int i);
+
+        void response(Object parma);
     }
 }

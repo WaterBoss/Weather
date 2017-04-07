@@ -1,6 +1,5 @@
 package com.example.qcy.fragment;
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -22,6 +21,7 @@ import com.example.qcy.javabean.Country;
 import com.example.qcy.javabean.Province;
 import com.example.qcy.net.UtilityNet;
 import com.example.qcy.weather.R;
+import com.example.qcy.weather.WeatherActivity;
 
 import java.util.List;
 
@@ -48,7 +48,6 @@ public class ChooseAreaFragment extends Fragment {
     private City mSelectdCity;
     private RecyclerView.Adapter<MyViewHolder> mAdapter;
     private MCallBack mCallBack;
-    private ProgressDialog progressDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -174,9 +173,16 @@ public class ChooseAreaFragment extends Fragment {
                     } else if (mCurrentLever == LEVER_CITY) {
                         mSelectdCity = mCityList.get(position);
                         isCountries();
+                    } else if (mCurrentLever == LEVER_COUNTRY) {
+                        String weatherId = mCountryList.get(position).getWeatherId();
+                        AllUtil.saveDateBySP("weatherId", weatherId);
+                        WeatherActivity activity = (WeatherActivity) getActivity();
+                        activity.mDrawerLayout.closeDrawers();
+                        activity.mSwipeRefreshLayout.setRefreshing(true);
+                        activity.reFreshingDate(weatherId);
                     }
                 }
-            });
+           });
         }
 
         @Override
@@ -198,7 +204,13 @@ public class ChooseAreaFragment extends Fragment {
 
         @Override
         public void beginQuery() {
-            showProgressDialog();
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AllUtil.showProgressDialog(getActivity());
+                    AllUtil.logUtil(TAG, AllUtil.DUBUG_LEVER, "Activityname===="+getActivity().getLocalClassName());
+                }
+            });
         }
 
         @Override
@@ -206,7 +218,7 @@ public class ChooseAreaFragment extends Fragment {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    closeProgressDialog();
+                    AllUtil.closeProgressDialog();
                     if (mCurrentLever == LEVER_PROVINCE) {
                         mProvinceList = UtilityNet.queryProvinces(null);
                     } else if (mCurrentLever == LEVER_CITY) {
@@ -226,7 +238,7 @@ public class ChooseAreaFragment extends Fragment {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    closeProgressDialog();
+                    AllUtil.closeProgressDialog();
                     Toast.makeText(getActivity(), "加载失败", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -234,7 +246,7 @@ public class ChooseAreaFragment extends Fragment {
 
         @Override
         public void endQuery() {
-            closeProgressDialog();
+            AllUtil.closeProgressDialog();
             Toast.makeText(getActivity(), "加载失败", Toast.LENGTH_SHORT).show();
         }
 
@@ -242,26 +254,11 @@ public class ChooseAreaFragment extends Fragment {
         public void setMCurrentLever(int currentLever) {
             mCurrentLever = currentLever;
         }
-    }
 
-    /**
-     * 打开进度条
-     */
-    private void showProgressDialog() {
-        if (progressDialog == null){
-            progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setMessage("正在加载。。。。。");
-            progressDialog.setCanceledOnTouchOutside(false);
-        }
-        progressDialog.show();
-    }
+        @Override
+        public void response(Object parma) {
 
-    /**
-     * 关闭进度条
-     */
-    private void closeProgressDialog() {
-        if (progressDialog != null) {
-            progressDialog.dismiss();
         }
     }
+
 }
