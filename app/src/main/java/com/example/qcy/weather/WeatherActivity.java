@@ -26,6 +26,8 @@ import com.example.qcy.javabean.Weather;
 import com.example.qcy.net.UtilityNet;
 import com.example.qcy.net.UtilityNet.MCallBack;
 
+import static com.example.qcy.com.example.qcy.util.AllUtil.getSpBooleanDate;
+
 /**
  * 天气详情页面
  */
@@ -60,7 +62,8 @@ public class WeatherActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
-        MyApplication.getInstance().setActivity(this);
+        MyApplication.getInstance().setActivity(WeatherActivity.this);
+        AllUtil.logUtil(TAG,AllUtil.DUBUG_LEVER,"public_activity==="+MyApplication.getInstance().getActivity());
         mDrawerLayout = (DrawerLayout) findViewById(R.id.home_drawer_layout);
         mDrawerLayout.closeDrawers();
         mHomeBut = (ImageView) findViewById(R.id.home_but);
@@ -115,6 +118,24 @@ public class WeatherActivity extends BaseActivity {
                 mDrawerLayout.openDrawer(GravityCompat.START, true);
             }
         });
+
+        //开启后台自动更新数据服务
+        Intent serviceIntent = new Intent(this, AutoUpdateWeatherDateService.class);
+        startService(serviceIntent);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (getSpBooleanDate("weatherInfoIfUpDate")) {
+            String weatheInfo = AllUtil.getSpDate("weather");
+            if (!TextUtils.isEmpty(weatheInfo)) {
+                Weather weather = UtilityNet.handleWeatherResponse(weatheInfo);
+                showWeatherInfo(weather);
+                AllUtil.saveDateBySP("weatherInfoIfUpDate", false);
+            }
+            Glide.with(WeatherActivity.this).load(AllUtil.getSpDate("bing_pic")).into(mBackgroundImage);
+        }
     }
 
     /**
@@ -122,7 +143,7 @@ public class WeatherActivity extends BaseActivity {
      *
      * @param weather
      */
-    private void showWeatherInfo(Weather weather) {
+    public void showWeatherInfo(Weather weather) {
         if (weather == null) {
             return;
         }
@@ -162,7 +183,7 @@ public class WeatherActivity extends BaseActivity {
         UtilityNet.requestWeather(weatherId, new MCallBacK());
     }
 
-    private class MCallBacK implements MCallBack {
+    public class MCallBacK implements MCallBack {
         @Override
         public void beginQuery() {
             Activity activity = WeatherActivity.this.getParent();
@@ -215,7 +236,7 @@ public class WeatherActivity extends BaseActivity {
         }
     }
 
-    private class LoadPicCallBack implements MCallBack {
+    public  class LoadPicCallBack implements MCallBack {
         @Override
         public void beginQuery() {
 
@@ -246,7 +267,7 @@ public class WeatherActivity extends BaseActivity {
             WeatherActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Glide.with(WeatherActivity.this).load(parma).into(mBackgroundImage);
+                    Glide.with(MyApplication.getInstance().getActivity()).load(parma).into(mBackgroundImage);
                 }
             });
         }

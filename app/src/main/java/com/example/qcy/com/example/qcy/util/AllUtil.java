@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.qcy.net.UtilityNet;
@@ -97,9 +96,8 @@ public class AllUtil {
             progressDialog.dismiss();
         }
     }
-
-    public static void saveDateBySP(String nameStr, String dateStr){
-        if (TextUtils.isEmpty(dateStr)){
+    public static void saveDateBySP(String nameStr, String dateStr) {
+        if (dateStr == null){
             return;
         }
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences
@@ -107,9 +105,23 @@ public class AllUtil {
         editor.putString(nameStr, dateStr);
         editor.apply();
     }
+    public static void saveDateBySP(String nameStr, Boolean dateBoolean){
+        if (dateBoolean == null){
+            return;
+        }
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences
+                (MyApplication.getInstance().getContext()).edit();
+        editor.putBoolean(nameStr, dateBoolean);
+        editor.apply();
+    }
 
-    public static Object getSpDate(String weatherId) {
+    public static String getSpDate(String weatherId) {
         return PreferenceManager.getDefaultSharedPreferences(MyApplication.getInstance().getContext())
                 .getString(weatherId, null);
+    }
+
+    public static boolean getSpBooleanDate(String weatherId) {
+        return PreferenceManager.getDefaultSharedPreferences(MyApplication.getInstance().getContext())
+                .getBoolean(weatherId, false);
     }
 }

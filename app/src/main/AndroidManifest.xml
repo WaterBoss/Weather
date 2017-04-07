@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.example.qcy.weather">
 
+	<uses-permission android:name="android.permission.INTERNET"/>
+
 	<application
 		android:name="com.example.qcy.com.example.qcy.util.MyApplication"
 		android:allowBackup="true"
@@ -13,10 +15,16 @@
 		<activity android:name=".WeatherActivity">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
+
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
 		</activity>
 
+		<service
+			android:name=".AutoUpdateWeatherDateService"
+			android:enabled="true"
+			android:exported="true">
+		</service>
 	</application>
-	<uses-permission android:name="android.permission.INTERNET"/>
+
 </manifest>

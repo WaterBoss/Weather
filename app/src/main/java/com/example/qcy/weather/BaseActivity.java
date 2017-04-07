@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.qcy.com.example.qcy.util.AllUtil;
+import com.example.qcy.com.example.qcy.util.MyApplication;
 
 /**
  * Created by qcy on 2017/4/5.
@@ -29,4 +31,9 @@ class BaseActivity extends AppCompatActivity {
             AllUtil.saveDateBySP("weatherId", defaultWeatherId);
         }
     }
+
+    public static void toastText(String str) {
+        Toast.makeText(MyApplication.getInstance().getActivity(), str, Toast.LENGTH_SHORT).show();
+    }
+
 }

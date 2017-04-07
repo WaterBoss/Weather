@@ -290,14 +290,18 @@ public class UtilityNet {
         AllUtil.sendOkHttpRequest(address, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                loadPicCallBack.failure();
+                if (loadPicCallBack != null) {
+                    loadPicCallBack.failure();
+                }
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String picAddress = response.body().string();
                 AllUtil.saveDateBySP("bing_pic", picAddress);
-                loadPicCallBack.response(picAddress);
+                if (loadPicCallBack != null) {
+                    loadPicCallBack.response(picAddress);
+                }
             }
         });
     }
